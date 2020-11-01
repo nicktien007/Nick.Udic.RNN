@@ -18,8 +18,8 @@ def preprocess_dataset(input_file, output_path):
     # 構造平衡語料
     pd_positive = pd_all[pd_all.label == 1]
     pd_negative = pd_all[pd_all.label == 0]
-    pd_60000 = get_balance_corpus(60000, pd_positive, pd_negative)
-    # pd_60000 = get_balance_corpus(1000, pd_positive, pd_negative)
+    # pd_60000 = get_balance_corpus(60000, pd_positive, pd_negative)
+    pd_60000 = get_balance_corpus(1000, pd_positive, pd_negative)
     # print(pd_60000.sample(20))
     # 先將數據分為train.csv和test.csv
     split_dataFrame(df=pd_60000,

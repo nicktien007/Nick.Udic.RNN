@@ -1,5 +1,6 @@
-import tokenize_service as ts
-import preprocess_dataset_service as pds
+import logging_utils
+from service import tokenize_service as ts, preprocess_dataset_service as pds, train_service as tt
+import torch
 
 
 def test_tokenize():
@@ -7,9 +8,16 @@ def test_tokenize():
 
 
 def test_preprocess_dataset():
-    pds.preprocess_dataset("./dataset/online_shopping_10_cats.csv", './testoutput')
+    pds.preprocess_dataset("./dataset/online_shopping_10_cats.csv", './test_output')
+
+
+def test_train_model():
+    device = torch.device('cpu')
+    tt.build_RNN_model('./test_output', './test_train_model', device)
 
 
 if __name__ == '__main__':
+    logging_utils.Init_logging()
     # test_tokenize()
-    test_preprocess_dataset()
+    # test_preprocess_dataset()
+    test_train_model()
