@@ -1,17 +1,13 @@
 import pandas as pd
 import numpy as np
-import jieba
-import jieba.posseg as psg
-from opencc import OpenCC
-import codecs
 import torch
 from torch import nn
-from torchtext import data, datasets
+from torchtext import data
 import logging_utils
 import logging as log
 
-cc = OpenCC('s2t')  # s2t: 簡體中文 -> 繁體中文
-jieba.set_dictionary('./dict/dict.txt.big.txt')
+from tokenize_service import tokenize
+
 device = torch.device('cpu')
 
 
@@ -58,35 +54,6 @@ def get_build_RNN_model_data():
     log.info("end get_build_RNN_model_data")
 
     return TEXT, test_data, train_data
-
-
-# 資料預處理
-def preprocess_dataset():
-    pd_all = pd.read_csv('./dataset/online_shopping_10_cats.csv')
-    print('評論數目（全）：%d' % pd_all.shape[0])
-    print('評論數目（正向）：%d' % pd_all[pd_all.label == 1].shape[0])
-    print('評論數目（負向）：%d' % pd_all[pd_all.label == 0].shape[0])
-    print(type(pd_all))
-    # print(pd_all.sample(20))
-    # 構造平衡語料
-    pd_positive = pd_all[pd_all.label == 1]
-    pd_negative = pd_all[pd_all.label == 0]
-    pd_60000 = get_balance_corpus(60000, pd_positive, pd_negative)
-    # pd_60000 = get_balance_corpus(1000, pd_positive, pd_negative)
-    # print(pd_60000.sample(20))
-    # 先將數據分為train.csv和test.csv
-    split_dataFrame(df=pd_60000,
-                    trainfile='./train_data/train.csv',
-                    valtestfile='./train_data/test.csv',
-                    seed=999,
-                    ratio=0.2)
-    # 再將train.csv分為dataset_train.csv和dataset_valid.csv
-    split_csv(infile='./train_data/train.csv',
-              trainfile='./train_data/dataset_train.csv',
-              valtestfile='./train_data/dataset_valid.csv',
-              seed=999,
-              ratio=0.2)
-    # print(tokenize('傅达仁今将运行安乐死，却突然爆出自己20年前遭纬来体育台封杀，他不懂自己哪里得罪到电视台。'))
 
 
 def setup_manual_seed():
@@ -257,6 +224,35 @@ def predict_sentiment(net, vocab, sentence):
     return prediction.item()
 
 
+# 資料預處理
+def preprocess_dataset():
+    pd_all = pd.read_csv('./dataset/online_shopping_10_cats.csv')
+    print('評論數目（全）：%d' % pd_all.shape[0])
+    print('評論數目（正向）：%d' % pd_all[pd_all.label == 1].shape[0])
+    print('評論數目（負向）：%d' % pd_all[pd_all.label == 0].shape[0])
+    print(type(pd_all))
+    # print(pd_all.sample(20))
+    # 構造平衡語料
+    pd_positive = pd_all[pd_all.label == 1]
+    pd_negative = pd_all[pd_all.label == 0]
+    pd_60000 = get_balance_corpus(60000, pd_positive, pd_negative)
+    # pd_60000 = get_balance_corpus(1000, pd_positive, pd_negative)
+    # print(pd_60000.sample(20))
+    # 先將數據分為train.csv和test.csv
+    split_dataFrame(df=pd_60000,
+                    trainfile='./train_data/train.csv',
+                    valtestfile='./train_data/test.csv',
+                    seed=999,
+                    ratio=0.2)
+    # 再將train.csv分為dataset_train.csv和dataset_valid.csv
+    split_csv(infile='./train_data/train.csv',
+              trainfile='./train_data/dataset_train.csv',
+              valtestfile='./train_data/dataset_valid.csv',
+              seed=999,
+              ratio=0.2)
+    # print(tokenize('傅达仁今将运行安乐死，却突然爆出自己20年前遭纬来体育台封杀，他不懂自己哪里得罪到电视台。'))
+
+
 def get_balance_corpus(corpus_size, corpus_pos, corpus_neg):
     sample_size = corpus_size // 2
     pd_corpus_balance = pd.concat([corpus_pos.sample(sample_size, replace=corpus_pos.shape[0] < sample_size), \
@@ -271,13 +267,7 @@ def get_balance_corpus(corpus_size, corpus_pos, corpus_neg):
 
 def split_csv(infile, trainfile, valtestfile, seed=999, ratio=0.2):
     df = pd.read_csv(infile)
-    df["review"] = df.review.str.replace("\n", " ")
-    idxs = np.arange(df.shape[0])
-    np.random.seed(seed)
-    np.random.shuffle(idxs)
-    val_size = int(len(idxs) * ratio)
-    df.iloc[idxs[:val_size], :].to_csv(valtestfile, index=False)
-    df.iloc[idxs[val_size:], :].to_csv(trainfile, index=False)
+    split_dataFrame(df, trainfile, valtestfile, seed, ratio)
 
 
 def split_dataFrame(df, trainfile, valtestfile, seed=999, ratio=0.2):
@@ -290,26 +280,8 @@ def split_dataFrame(df, trainfile, valtestfile, seed=999, ratio=0.2):
     df.iloc[idxs[val_size:], :].to_csv(trainfile, index=False)
 
 
-# 中文斷詞
-def tokenize(sentence):
-    stopword_set = get_stopword_set()
-    converted = cc.convert(sentence)  # 簡>繁
-    words = jieba.posseg.cut(converted)
-    words = [w.word for w in words if w.word not in stopword_set]
-    # print(words)
-    return words
-
-
-def get_stopword_set():
-    stopword_set = set()
-    with codecs.open('./dict/stopwords.txt', 'r', 'utf-8') as stopwords:
-        for stopword in stopwords:
-            stopword_set.add(stopword.strip('\n'))
-    return stopword_set
-
-
 def do_predict():
-    net = torch.load('trained_model/RNN-model_1.pt')
+    net = torch.load('trained_model/RNN-model.pt')
     vocab = torch.load('./trained_model/vocab')
 
     score = predict_sentiment(net, vocab, '最差的一次购物、快递都用了九天、什么心情都没有了')
