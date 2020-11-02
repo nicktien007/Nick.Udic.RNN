@@ -10,6 +10,47 @@ from model.RNN import RNN
 from service.tokenize_service import tokenize
 
 
+def build_RNN_model(train_data_path, trained_model_path, device):
+    if not os.path.isdir(trained_model_path):
+        os.mkdir(trained_model_path)
+
+    setup_manual_seed()
+
+    TEXT, test_data, train_data = get_build_RNN_model_data(train_data_path, trained_model_path)
+
+    batch_size = 30
+    # # Iterator是torchtext到模型的輸出
+    train_iterator, test_iterator = data.BucketIterator.splits(
+        (train_data, test_data),
+        batch_size=batch_size,
+        sort_key=lambda x: len(x.review),
+        device=device
+    )
+    vocab_size = len(TEXT.vocab)  # 詞典大小
+    # vocab_size = 10002  # 詞典大小
+    embedding_dim = 100  # 詞向量維度
+    hidden_dim = 100  # 隱藏層維度
+    output_dim = 1  # 輸出層
+    rnn = RNN(vocab_size, embedding_dim, hidden_dim, output_dim)
+    print(rnn)
+    # pretrained_embedding = TEXT.vocab.vectors
+    # print('pretrained_embedding:', pretrained_embedding.shape)
+    # rnn.embedding.weight.data.copy_(pretrained_embedding)
+    # print('embedding layer inited.')
+    # 優化器
+    optimizer = torch.optim.Adam(rnn.parameters(), lr=1e-3)
+    loss_func = torch.nn.BCEWithLogitsLoss().to(device)  # 因為我們輸出只有1個，所以選用binary cross entropy
+    # 用cpu
+    rnn.to(device)
+    # 開始訓練
+    log.info('start train')
+    for epoch in range(10):
+        train(rnn, epoch, train_iterator, optimizer, loss_func, trained_model_path)
+        eval(rnn, epoch, test_iterator, loss_func)
+    log.info('end train')
+    torch.save(rnn, trained_model_path+'/RNN-model.pt')  # 存模型
+
+
 def get_build_RNN_model_data(train_data_path, trained_model_path):
     log.info("start get_build_RNN_model_data")
     CAT = data.Field(sequential=True, fix_length=20)
@@ -46,45 +87,6 @@ def get_build_RNN_model_data(train_data_path, trained_model_path):
     log.info("end get_build_RNN_model_data")
 
     return TEXT, test_data, train_data
-
-
-def build_RNN_model(train_data_path, trained_model_path, device):
-    if not os.path.isdir(trained_model_path):
-        os.mkdir(trained_model_path)
-
-    TEXT, test_data, train_data = get_build_RNN_model_data(train_data_path, trained_model_path)
-
-    batch_size = 30
-    # # Iterator是torchtext到模型的輸出
-    train_iterator, test_iterator = data.BucketIterator.splits(
-        (train_data, test_data),
-        batch_size=batch_size,
-        sort_key=lambda x: len(x.review),
-        device=device
-    )
-    vocab_size = len(TEXT.vocab)  # 詞典大小
-    # vocab_size = 10002  # 詞典大小
-    embedding_dim = 100  # 詞向量維度
-    hidden_dim = 100  # 隱藏層維度
-    output_dim = 1  # 輸出層
-    rnn = RNN(vocab_size, embedding_dim, hidden_dim, output_dim)
-    print(rnn)
-    # pretrained_embedding = TEXT.vocab.vectors
-    # print('pretrained_embedding:', pretrained_embedding.shape)
-    # rnn.embedding.weight.data.copy_(pretrained_embedding)
-    # print('embedding layer inited.')
-    # 優化器
-    optimizer = torch.optim.Adam(rnn.parameters(), lr=1e-3)
-    loss_func = torch.nn.BCEWithLogitsLoss().to(device)  # 因為我們輸出只有1個，所以選用binary cross entropy
-    # 用cpu
-    rnn.to(device)
-    # 開始訓練
-    log.info('start train')
-    for epoch in range(10):
-        train(rnn, epoch, train_iterator, optimizer, loss_func, trained_model_path)
-        eval(rnn, epoch, test_iterator, loss_func)
-    log.info('end train')
-    torch.save(rnn, trained_model_path+'/RNN-model.pt')  # 存模型
 
 
 def binary_acc(preds, y):

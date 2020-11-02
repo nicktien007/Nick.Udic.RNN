@@ -1,5 +1,5 @@
 import logging_utils
-from service import tokenize_service as ts, preprocess_dataset_service as pds, train_service as tt
+from service import tokenize_service as ts, preprocess_dataset_service as pds, train_service as tt,predict_service as ps
 import torch
 
 
@@ -13,11 +13,17 @@ def test_preprocess_dataset():
 
 def test_train_model():
     device = torch.device('cpu')
-    tt.build_RNN_model('./test_output', './test_train_model', device)
+    # tt.build_RNN_model('./test_output', './test_train_model', device)
+    tt.build_RNN_model('./train_data', './test_train_model', device)
+
+def test_predict():
+    ps.predict("./trained_model", "掉色很严重 垃圾货 服务质量差")
 
 
 if __name__ == '__main__':
     logging_utils.Init_logging()
     # test_tokenize()
     # test_preprocess_dataset()
-    test_train_model()
+    # test_train_model()
+    test_predict()
+
