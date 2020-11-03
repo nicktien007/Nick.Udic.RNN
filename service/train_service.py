@@ -5,7 +5,6 @@ import numpy as np
 import torch
 from torchtext import data
 
-
 from model.RNN import RNN
 from service.tokenize_service import tokenize
 
@@ -48,7 +47,7 @@ def build_RNN_model(train_data_path, trained_model_path, device):
         train(rnn, epoch, train_iterator, optimizer, loss_func, trained_model_path)
         eval(rnn, epoch, test_iterator, loss_func)
     log.info('end train')
-    torch.save(rnn, trained_model_path+'/RNN-model.pt')  # 存模型
+    torch.save(rnn, trained_model_path + '/RNN-model.pt')  # 存模型
 
 
 def get_build_RNN_model_data(train_data_path, trained_model_path):
@@ -61,7 +60,7 @@ def get_build_RNN_model_data(train_data_path, trained_model_path):
                       stop_words=None)
     train_data, valid_data, test_data = \
         data.TabularDataset.splits(
-            path=train_data_path+"/",  # 數據所在文件夾
+            path=train_data_path + "/",  # 數據所在文件夾
             train='dataset_train.csv',
             validation='dataset_valid.csv',
             test='test.csv',
@@ -83,7 +82,7 @@ def get_build_RNN_model_data(train_data_path, trained_model_path):
     print(TEXT.vocab.itos[:10])  # 列表 index to word
     print(TEXT.vocab.stoi)  # 字典 word to index
 
-    torch.save(TEXT.vocab, trained_model_path+"/vocab")
+    torch.save(TEXT.vocab, trained_model_path + "/vocab")
     log.info("end get_build_RNN_model_data")
 
     return TEXT, test_data, train_data
@@ -131,7 +130,7 @@ def train(rnn, epoch, iterator, optimizer, loss_func, trained_model_path):
         epoch + 1, round(TrainLoss.item(), 3), round(TrainAcc, 3), avg_acc))
 
     if avg_acc > 0.9:
-        torch.save(rnn, trained_model_path+'/RNN-model.pt')  # 存模型
+        torch.save(rnn, trained_model_path + '/RNN-model.pt')  # 存模型
         # torch.save(rnn.state_dict(), SYS_DIR+trained_Model_Path+'/'+trained_Model_Name) #只存權重
         log.info('save done')
 
@@ -162,6 +161,7 @@ def eval(rnn, epoch, iterator, loss_func):
         avg_acc = np.array(avg_acc).mean()
         log.info('epoch : %d ,TestLoss: %f , TestAcc acc: %f , avg TestAcc acc: %f ' % (
             epoch + 1, round(TestLoss.item(), 3), round(TestAcc, 3), avg_acc))
+
 
 def setup_manual_seed():
     # 設置固定生成隨機數的種子，使得每次運行文件時生成的隨機數相同

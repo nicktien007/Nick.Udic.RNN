@@ -1,16 +1,22 @@
 import torch
+
+import arg_parser_factory
 import logging_utils
 
-from service import train_service
-from service.tokenize_service import tokenize
-from service.train_service import build_RNN_model, setup_manual_seed
+from service.preprocess_dataset_service import preprocess_dataset
+from service.train_service import build_RNN_model
 from service.predict_service import predict
 
 
 def main():
-    # preprocess_dataset("./dataset/online_shopping_10_cats.csv", "./train_data")
-    # build_RNN_model('./train_data', './trained_model',torch.device('cpu'))
-    predict("./trained_model", "我非常快樂")
+    args = arg_parser_factory.build()
+
+    if args.subcmd == 'train':
+        preprocess_dataset(args.input, args.temp, int(args.corpus_size))
+        build_RNN_model(args.temp, args.output, torch.device(args.device))
+
+    if args.subcmd == 'query':
+        predict(args.input, args.keyword, torch.device(args.device))
 
 
 # https://bit.ly/35PPUK3

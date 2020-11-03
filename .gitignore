@@ -130,3 +130,4 @@ dmypy.json
 
 /trained_model
 /train_data
+/temp
