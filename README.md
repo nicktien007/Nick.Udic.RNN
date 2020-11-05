@@ -32,10 +32,7 @@ python3 main.py train -i ./dataset/online_shopping_10_cats.csv -o ./test_model
 ## query 進行關鍵字查詢
 參數
 - **-i**：待查詢的Model路徑
-- **-k**：查詢關鍵字
-    - `keyword1`：查詢相似詞前xx筆排序
-    - `keyword1,keyword2`：計算 Cosine 相似度
-    - `keyword1,keyword2,keyword3`：keyword1之於keyword2，如keyword3之於...
+- **-k**：查詢句子分類
 - **-d**：cpu or cuda(`預設：cpu`)
 ```
 python3 main.py query -i ./trained_model -k 這東西很糟，我很不爽

@@ -38,7 +38,10 @@ def build_RNN_model(train_data_path, trained_model_path, device):
     # print('embedding layer inited.')
     # 優化器
     optimizer = torch.optim.Adam(rnn.parameters(), lr=1e-3)
-    loss_func = torch.nn.BCEWithLogitsLoss().to(device)  # 因為我們輸出只有1個，所以選用binary cross entropy
+
+    # 因為我們輸出只有1個，所以選用binary cross entropy
+    loss_func = torch.nn.BCEWithLogitsLoss().to(device)
+
     # 用cpu
     rnn.to(device)
     # 開始訓練

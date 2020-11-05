@@ -10,11 +10,12 @@ class RNN(nn.Module):
             input_size=embedding_dim,
             hidden_size=hidden_dim,
             num_layers=2,
-            bidirectional=True,
+            bidirectional=True,  # 雙向LSTM
             batch_first=False
         )
+        # fc=>特徵
         self.fc = nn.Linear(
-            in_features=200,
+            in_features=200,  # embedding_dim*2, 如果bidirectional=falsem,它就是100
             out_features=output_dim,
             bias=True
         )
