@@ -1,5 +1,6 @@
 from torch import nn
 
+
 # https://bit.ly/34PAvu5
 class RNN(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_dim, output_dim):
@@ -14,10 +15,11 @@ class RNN(nn.Module):
         )
         self.fc = nn.Linear(
             in_features=200,
-            out_features=1,
+            out_features=output_dim,
             bias=True
         )
 
+        # Dropout 避免overfitting
         self.dropout = nn.Dropout(p=0, inplace=False)
 
     def forward(self, x):

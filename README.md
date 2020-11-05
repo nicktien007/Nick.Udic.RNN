@@ -40,3 +40,11 @@ python3 main.py train -i ./dataset/online_shopping_10_cats.csv -o ./test_model
 ```
 python3 main.py query -i ./trained_model -k 這東西很糟，我很不爽
 ```
+
+## 參考資料
+- https://bit.ly/35PPUK3
+- https://bit.ly/2HRXbRe
+- https://bit.ly/34PAvu5
+- https://bit.ly/34M7r6p
+- https://bit.ly/3kOipy3
+- https://bit.ly/3oYIvAU
