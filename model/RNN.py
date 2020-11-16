@@ -15,13 +15,13 @@ class RNN(nn.Module):
         )
         # fc=>特徵
         self.fc = nn.Linear(
-            in_features=200,  # embedding_dim*2, 如果bidirectional=falsem,它就是100
+            in_features=embedding_dim * 2,  # embedding_dim*2, 如果bidirectional=false,它就是embedding_dim
             out_features=output_dim,
             bias=True
         )
 
         # Dropout 避免overfitting
-        self.dropout = nn.Dropout(p=0, inplace=False)
+        self.dropout = nn.Dropout(p=0.5, inplace=False)
 
     def forward(self, x):
         # batch_size = x.size(1)

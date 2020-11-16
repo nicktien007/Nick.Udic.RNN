@@ -121,7 +121,7 @@ def train(rnn, epoch, iterator, optimizer, loss_func, trained_model_path):
         loss = loss_func(pred, batch.label)  # loss計算
         TrainLoss = TrainLoss + loss
 
-        loss.backward()  # 反向傳遞
+        loss.backward()  # 反向傳遞 => 把loss 傳遞有訂閱的角色
         optimizer.step()  # 通過梯度做參數更新(更新權重)
 
         # if step%20 == 0:print('train loss: %.4f, train acc: %.2f' %(loss, acc))
