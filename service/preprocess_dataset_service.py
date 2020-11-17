@@ -23,21 +23,21 @@ def preprocess_dataset(input_file, output_path, corpus_size):
     # print(pd_60000.sample(20))
     # 先將數據分為train.csv和test.csv
     split_dataFrame(df=pd_corpus,
-                    trainfile=output_path + '/train.csv',
-                    valtestfile=output_path + '/test.csv',
+                    train_file=output_path + '/train.csv',
+                    val_testfile=output_path + '/test.csv',
                     seed=999,
                     ratio=0.2)
     # 再將train.csv分為dataset_train.csv和dataset_valid.csv
     split_csv(infile=output_path + '/train.csv',
-              trainfile=output_path + '/dataset_train.csv',
-              valtestfile=output_path + '/dataset_valid.csv',
+              train_file=output_path + '/dataset_train.csv',
+              val_testfile=output_path + '/dataset_valid.csv',
               seed=999,
               ratio=0.2)
 
 
 def get_balance_corpus(corpus_size, corpus_pos, corpus_neg):
     sample_size = corpus_size // 2
-    pd_corpus_balance = pd.concat([corpus_pos.sample(sample_size, replace=corpus_pos.shape[0] < sample_size), \
+    pd_corpus_balance = pd.concat([corpus_pos.sample(sample_size, replace=corpus_pos.shape[0] < sample_size),
                                    corpus_neg.sample(sample_size, replace=corpus_neg.shape[0] < sample_size)])
 
     print('評論數目(總體)：%d' % pd_corpus_balance.shape[0])
@@ -47,16 +47,16 @@ def get_balance_corpus(corpus_size, corpus_pos, corpus_neg):
     return pd_corpus_balance
 
 
-def split_csv(infile, trainfile, valtestfile, seed=999, ratio=0.2):
+def split_csv(infile, train_file, val_testfile, seed=999, ratio=0.2):
     df = pd.read_csv(infile)
-    split_dataFrame(df, trainfile, valtestfile, seed, ratio)
+    split_dataFrame(df, train_file, val_testfile, seed, ratio)
 
 
-def split_dataFrame(df, trainfile, valtestfile, seed=999, ratio=0.2):
+def split_dataFrame(df, train_file, val_testfile, seed=999, ratio=0.2):
     df["review"] = df.review.str.replace("\n", " ")
     idxs = np.arange(df.shape[0])
     np.random.seed(seed)
     np.random.shuffle(idxs)
     val_size = int(len(idxs) * ratio)
-    df.iloc[idxs[:val_size], :].to_csv(valtestfile, index=False)
-    df.iloc[idxs[val_size:], :].to_csv(trainfile, index=False)
+    df.iloc[idxs[:val_size], :].to_csv(val_testfile, index=False)
+    df.iloc[idxs[val_size:], :].to_csv(train_file, index=False)
