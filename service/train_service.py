@@ -61,6 +61,7 @@ def get_build_RNN_model_data(train_data_path, trained_model_path):
                       lower=True,  # 是否將數據轉小寫
                       fix_length=100,  # 每條數據的長度
                       stop_words=None)
+
     train_data, valid_data, test_data = \
         data.TabularDataset.splits(
             path=train_data_path + "/",  # 數據所在文件夾

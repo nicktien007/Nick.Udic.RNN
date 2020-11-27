@@ -1,8 +1,12 @@
 import codecs
-import jieba
 import jieba.posseg as psg
 
+from udicOpenData.dictionary import *
+from udicOpenData.stopwords import *
+
 from opencc import OpenCC
+
+from gensim import models
 
 jieba.set_dictionary('./dict/dict.txt.big.txt')
 cc = OpenCC('s2t')  # s2t: 簡體中文 -> 繁體中文
@@ -24,3 +28,20 @@ def get_stopword_set():
         for stopword in stopwords:
             stopword_set.add(stopword.strip('\n'))
     return stopword_set
+
+
+def to_vector(words):
+    vector = []
+    model = models.Word2Vec.load('./trained_model/wiki_model/word2vec_wiki_zh.model.bin')
+
+    for i, q in enumerate(words):
+        word_list = list(rmsw(q))
+        tmp = []
+        for word in word_list:
+            try:
+                tmp.append(model[word])
+            except:
+                continue
+        vector.append(tmp)
+
+    return vector

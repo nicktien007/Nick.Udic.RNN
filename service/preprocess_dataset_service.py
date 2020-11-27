@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 
 
-# 資料預處理
 def preprocess_dataset(input_file, output_path, corpus_size):
+    """資料預處理"""
     pd_all = pd.read_csv(input_file)
     if not os.path.isdir(output_path):
         os.mkdir(output_path)
